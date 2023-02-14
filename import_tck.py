@@ -90,9 +90,12 @@ def load_tck(filepath, tract_point_count=-1, radius=1, in_mm=True):
     curve.bevel_depth = radius * to_meters
 
     for tract in get_tracts(filepath):
-        if tract_point_count > 0:
-            index = np.linspace(0, tract.shape[0] - 1, tract_point_count).astype(np.int32)
+        if tract_point_count > 1 and tract_point_count < tract.shape[0]:
+            # make sure we include the last point always
+            index = np.linspace(0, tract.shape[0] - 2, tract_point_count - 1).astype(np.int32)
+            index = np.append(index, [tract.shape[0] - 1])
             tract = tract[index, :]
+
         # logging.info ( f"size is {t.shape}")
         polyline = curve.splines.new('NURBS')  # 'POLY''BEZIER''BSPLINE''CARDINAL''NURBS'
         polyline.points.add(tract.shape[0] - 1)
